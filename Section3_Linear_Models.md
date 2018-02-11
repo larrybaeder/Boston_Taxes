@@ -311,12 +311,6 @@ lasso <- as_tibble(cbind(boston$PID, round(lp, digits = 3), round(lr, digits = 3
 names(lasso) <- c("PID","lasso_pred", "lasso_resid")
 ```
 
-!!!! Not working right now Join the two tables of predictions and residuals into one table.
-
-``` r
-#predictions <- predictions %>% left_join(lasso, by = "PID")
-```
-
 ### Ward Analysis with Lasso
 
 Ward 14
@@ -347,7 +341,7 @@ lasso.ward14 <- glmnet(x[train,], y[train], alpha = 1)
 plot(lasso.ward14, label = TRUE)
 ```
 
-![](Section3_Linear_Models_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](Section3_Linear_Models_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
 Perform cross validation to find the best lambda value.
 
@@ -356,7 +350,7 @@ cv.ward14 <- cv.glmnet(x[train,], y[train], alpha=1)
 plot(cv.ward14)
 ```
 
-![](Section3_Linear_Models_files/figure-markdown_github/unnamed-chunk-14-1.png)
+![](Section3_Linear_Models_files/figure-markdown_github/unnamed-chunk-13-1.png)
 
 Find the best lambda value and make predictios on the test set. Find the mean squared error on the test set.
 
@@ -489,39 +483,6 @@ lasso.coef
     ## U_BTH_STYLE_No_remodeling   -0.13220361
     ## U_BTH_STYLE_Semi_modern     -0.01112520
     ## Log_LIVING_AREA_             .
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Make a data frame with the PID, predicted value and residualfor each value in Ward 14 using the final model.
-
-``` r
-#w14_l <- boston %>% 
-#  filter(Ward == 14) %>% 
-#  select(PID)
-#w14_PID <- as.matrix(w14_PID)  
-#w14_l$p <- predict(final, s=bestlam, newx=x)
-#w14_l$r <- ward_14$Log_AV_TOTAL_ - w14_lp
-```
-
-``` r
-#w14_l
-```
-
-Perform and inner join to compare the predicted values from the full model to the predicted values from the ward only model.
-
-``` r
-#predictions %>% inner_join(w14_lasso, by = "PID")
-```
-
-Summarize the residuals for the ward 14 only model.
-
-``` r
-#summary(w14_lr)
-```
-
-``` r
-#w14_lasso
-```
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 Ward Analysis Loop
 ------------------
