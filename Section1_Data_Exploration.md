@@ -4,7 +4,7 @@ Data Exploration
 
 We start with our raw, uncleaned data set of condominiums in the Boston area and their characteristics. We will do an examination of the basic structure of the data along with some of the variables to get a sense of the data.
 
-This section will contain a snap shot of the data exploration. An indepth view of every variable will be provided in the appendices.
+This section will contain a snap shot of the data exploration.
 
 Data preprocessing will be handled in a seperate file.
 
@@ -140,7 +140,38 @@ ggplot(boston) +
 
 ![](Section1_Data_Exploration_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
-GROSS\_TAX and AV\_TOTAL are almost perfectly correlated.
+Let's look at the assessed value based on the view type of the condo. First, we need to change the variable to a factor type and rename them so they are more informative. The plot below shows that the assessed value is larger depending on the type of view the unit has. A view of "special" seems to be very important for the assessed value.
+
+``` r
+boston$U_VIEW <- factor(boston$U_VIEW)
+levels(boston$U_VIEW) <- c("Average", "Excellent", "Fair", "Good", "Poor", "Special")
+
+ggplot(boston) + 
+  geom_boxplot(aes(x = reorder(U_VIEW, AV_TOTAL, FUN = median), 
+                   y = AV_TOTAL)) +
+  labs(title="Assessed Value by View Type", y="Assessed Value", x="View Type")
+```
+
+    ## Warning: Removed 36 rows containing non-finite values (stat_boxplot).
+
+![](Section1_Data_Exploration_files/figure-markdown_github/unnamed-chunk-6-1.png)
+
+The variable GROSS\_TAX is the total amount taxed for the property. Looking at the summary statistics, the mean is close to the mean for the assessed value, AV\_TOTAL. I did some research on the city of Boston website and the tax should be 10.59% of the total assessed value of property. It was concluded that the values are missing a decimal point. We will need to fix this variable and examine it further in our data preprocessing step.
+
+``` r
+boston %>% select(GROSS_TAX) %>% summary()
+```
+
+    ##    GROSS_TAX      
+    ##  Min.   :  42890  
+    ##  1st Qu.: 327125  
+    ##  Median : 474842  
+    ##  Mean   : 624009  
+    ##  3rd Qu.: 700078  
+    ##  Max.   :7004226  
+    ##  NA's   :36
+
+Since the gross tax is calculate from the assessed value, they should be perfectly correlated. A plot of AV\_TOTAL by GROSS\_TAX verifies that they are perfectly correlated. There are some values that don't fall on the line exactly. These points could be properties that were incorrectly taxed.
 
 ``` r
 ggplot(boston) +
@@ -149,16 +180,27 @@ ggplot(boston) +
 
     ## Warning: Removed 36 rows containing missing values (geom_point).
 
-![](Section1_Data_Exploration_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](Section1_Data_Exploration_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
-The assessed value is larger depending on the type of view the unit has. A view of "special" seems to be very important for the assessed value.
+Here we plot the assessed value by the year the property was built. We can see an increasing trend in the plot showing the newer the home, the higher the assessed value. The strength of this trend may not be as large as it appears since the majority of the data is in the lower values.
 
 ``` r
-ggplot(boston) + 
-  geom_boxplot(aes(x = reorder(U_VIEW, AV_TOTAL, FUN = median), 
-                   y = AV_TOTAL))
+boston %>% filter(YR_BUILT > 1500) %>%  
+  ggplot() +
+    geom_point(mapping = aes(x=YR_BUILT, y=AV_TOTAL))+
+  labs(title="Assessed Value by Year Built", y="Assessed Value", x="Year Built")
 ```
 
-    ## Warning: Removed 36 rows containing non-finite values (stat_boxplot).
+![](Section1_Data_Exploration_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
-![](Section1_Data_Exploration_files/figure-markdown_github/unnamed-chunk-7-1.png)
+The main question in this data is do the predictors influence the wards differently. Here we get an overview of the assessed value of the property by ward. We can see that there are higher value wards and lower value wards. Does the ward have an influence on what characteristics are important or does the same model accurately predict over all the wards? We will attempt to answer this question in the modeling sections.
+
+``` r
+ggplot(boston) +
+  geom_point(aes(x=Ward, y=AV_TOTAL))+
+  labs(title="Assessed Value by Ward", y="Assessed Value", x="Ward")
+```
+
+    ## Warning: Removed 36 rows containing missing values (geom_point).
+
+![](Section1_Data_Exploration_files/figure-markdown_github/unnamed-chunk-10-1.png)
